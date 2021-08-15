@@ -5,7 +5,7 @@ postfix operator --
 
 extension Int {
     func isCloserFromTop(of stack: Stack) -> Bool {
-        let middle = stack.size / 2
+        let middle = stack.count / 2
         var current = stack
         for _ in 0 ..< middle {
             if self == current.number { return true }

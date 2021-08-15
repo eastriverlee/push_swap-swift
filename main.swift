@@ -1,8 +1,8 @@
 import Darwin
 
-func quit() {
+func quit(_ force: Bool = false) {
     print("Error")
-    if debug { describe(a, b) }
+    if force || debug { describe(a, b) }
     exit(0)
 }
 
@@ -45,14 +45,50 @@ func get(_ number: Int, from option: Option) {
     }
 }
 
+func get(two numbers: [Int], from option: Option) {
+    var stack: Stack { option == .a ? a! : b! }
+    let fromTop = numbers.areCloserFromTop(of: stack)
+    var leftover: Int!
+
+    func pushOne() {
+        leftover = a!.number == numbers[0] ? numbers[1] : numbers[0]
+        p(.b)
+        if !b!.isSorted(to: 1, by: .descending) {
+            s(.b)
+        }
+    }
+    while numbers[0] != stack.number && numbers[1] != stack.number {
+        fromTop ? r(.a) : rr(.a)
+    }
+    pushOne()
+    get(leftover, from: option)
+    pushOne()
+}
+
+extension Sequence where Iterator.Element == Int {
+    func areCloserFromTop(of stack: Stack) -> Bool {
+        let count = stack.count
+        let middle = count / 2
+        let distance: [Int] = self.map { stack.find($0) }
+        return distance.reduce(0, +)/distance.count < middle
+    }
+}
+
 func sort() {
     let count = numbers.count
-    for i in 0 ..< count {
-        get(sortedNumbers[i], from: .a)
-        p(.b)
+    var i = 0
+    while i <= count-2 {
+        get(two: [sortedNumbers[i], sortedNumbers[i+1]], from: .a)
+        i += 2
     }
-    for _ in 0 ..< count {
-        p(.a)
+    if let a = a {
+        for _ in 0 ..< a.count {
+            get(sortedNumbers[i], from: .a)
+            p(.b)
+        }
+    }
+    if let b = b {
+        for _ in 0 ..< b.count { p(.a) }
     }
 }
 

@@ -15,15 +15,15 @@ class Stack {
     var down: Stack?
     var up: Stack?
     var copy: Stack { Stack(number, on: down, below: up) }
-    var bottom: Stack { self[size - 1] }
-    var size: Int { 
+    var bottom: Stack { self[count - 1] }
+    var count: Int { 
         var stack: Stack? = self
-        var size = 0
+        var count = 0
         while (stack != nil) {
             stack = stack?.down
-            size += 1
+            count += 1
         }
-        return size
+        return count
     }
 
     subscript(i: Int) -> Stack {
@@ -55,30 +55,29 @@ class Stack {
     }
 
     func find(_ n: Int) -> Int {
-        var current = self
-        for i in 0 ..< size {
-            if n == current.number { return i }
-            current = current.down!
+        var current: Stack? = self
+        for i in 0 ..< count {
+            if current == nil { break }
+            if n == current!.number { return i }
+            current = current!.down
         }
         return -1
     }
 
     func isSorted(from start: Int = 0, to end_: Int = -1, by order: Order) -> Bool {
-        let end = end_ == -1 ? size - 1 : end_
-        var stack: Stack? = self
+        let end = end_ == -1 ? count - 1 : end_
+        var current: Stack? = self
         var isSorted = true
         func hasError() -> Bool {
             isSorted = 
-            (order == .descending && stack!.number > stack!.down!.number) ||
-            (order == .ascending && stack!.number < stack!.down!.number)
+            (order == .descending && current!.number > current!.down!.number) ||
+            (order == .ascending && current!.number < current!.down!.number)
             return !isSorted
         }
-        if 0 < start {
-            for _ in 0 ... start { stack = stack!.down }
-        }
+        for _ in 0 ..< start { current = current!.down }
         for _ in start ..< end {
-            if stack?.down == nil || hasError() { break }
-            stack = stack?.down
+            if current?.down == nil || hasError() { break }
+            current = current?.down
         }
         return isSorted
     }
@@ -125,14 +124,14 @@ func buildStack(from numbers: [Int]) -> Stack? {
 }
 
 func describe(_ a: Stack?, _ b: Stack?) {
-    let sizes = [a?.size ?? 0, b?.size ?? 0]
-    let size = max(sizes[0], sizes[1])
+    let counts = [a?.count ?? 0, b?.count ?? 0]
+    let count = max(counts[0], counts[1])
     var stacks = [a, b]
     print(ANSI.cyan.rawValue)
-    for i in (0 ..< size).reversed() {
+    for i in (0 ..< count).reversed() {
         var number: [String] = [" ", " "]
         for j in 0 ..< 2 {
-            if let stack = stacks[j], sizes[j] > i {
+            if let stack = stacks[j], counts[j] > i {
                 number[j] = "\(stack.number)"
                 stacks[j] = stack.down
             }
@@ -141,5 +140,5 @@ func describe(_ a: Stack?, _ b: Stack?) {
     }
     print("_\t\t_")
     print("a\t\tb\n")
-    print(ANSI.white.rawValue)
+    print(ANSI.none.rawValue)
 }
