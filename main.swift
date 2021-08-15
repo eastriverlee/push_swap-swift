@@ -1,3 +1,10 @@
+import Darwin
+
+func quit() {
+    print("Error")
+    exit(0)
+}
+
 func fill() -> [Int] {
     var arguments = CommandLine.arguments
     arguments = Array(arguments[1 ..< arguments.count])
@@ -8,8 +15,13 @@ func fill() -> [Int] {
 }
 
 let numbers = fill()
+if Set(numbers).count != numbers.count { quit() }
 var a = buildStack(from: numbers)
 var b = buildStack(from: [])
+
+func sort() {
+    
+}
 
 //example
 let debug = true

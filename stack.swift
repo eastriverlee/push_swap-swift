@@ -1,5 +1,10 @@
 import Foundation
 
+enum Order {
+    case ascending
+    case descending
+}
+
 class Stack {
     init(_ n: Int, on stack: Stack? = nil, below: Stack? = nil) {
         number = n
@@ -13,12 +18,12 @@ class Stack {
     var bottom: Stack { self[size - 1] }
     var size: Int { 
         var stack: Stack? = self
-        var length = 0
+        var size = 0
         while (stack != nil) {
             stack = stack?.down
-            length += 1
+            size += 1
         }
-        return length
+        return size
     }
 
     subscript(i: Int) -> Stack {
@@ -37,23 +42,24 @@ class Stack {
         }
     }
 
-    func describe(with other: Stack? = nil) {
-        var stacks: [Stack?] = [self, other]
-        let sizes = [self.size, other?.size ?? 0]
-        let size = max(sizes[0], sizes[1])
-        for i in (0 ..< size).reversed() {
-            var number: [String] = [" ", " "]
-            for j in 0 ..< 2 {
-                if let stack = stacks[j], sizes[j] > i {
-                    number[j] = "\(stack.number)"
-                    stacks[j] = stack.down
-                }
-            }
-            print(number[0] + "\t" + number[1])
+    func isSorted(from start: Int = 0, to end_: Int = -1, by order: Order) -> Bool {
+        let end = end_ == -1 ? size - 1 : end_
+        var stack: Stack? = self
+        var isSorted = true
+        func hasError() -> Bool {
+            isSorted = 
+            (order == .descending && stack!.number > stack!.down!.number) ||
+            (order == .ascending && stack!.number < stack!.down!.number)
+            return !isSorted
         }
-        print("")
-        print("_\t_")
-        print("a\tb")
+        if 0 < start {
+            for _ in 0 ... start { stack = stack!.down }
+        }
+        for _ in start ..< end {
+            if stack?.down == nil || hasError() { break }
+            stack = stack?.down
+        }
+        return isSorted
     }
 }
 
