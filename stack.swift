@@ -28,10 +28,22 @@ class Stack {
 
     subscript(i: Int) -> Stack {
         var stack = self
-        for _ in 0 ..< i {
-            stack = stack.down!
+        if i > 0 {
+            for _ in 0 ..< i {
+                stack = stack.down!
+            }
         }
         return stack
+    }
+
+    subscript(range: Range<Int>) -> [Int] {
+        var stack: Stack? = self[range.lowerBound]
+        var array: [Int] = []
+        for _ in range {
+            array.append(stack!.number)
+            stack = stack?.down
+        }
+        return array
     }
 
     func swap() {
@@ -40,6 +52,15 @@ class Stack {
             number = down.number
             down.number = temp
         }
+    }
+
+    func find(_ n: Int) -> Int {
+        var current = self
+        for i in 0 ..< size {
+            if n == current.number { return i }
+            current = current.down!
+        }
+        return -1
     }
 
     func isSorted(from start: Int = 0, to end_: Int = -1, by order: Order) -> Bool {
@@ -83,7 +104,7 @@ func pop(_ stack: inout Stack?) -> Int? {
 func rotate(_ stack: inout Stack?) {
     if let bottom = stack?.bottom, let secondTop = stack?.down {
         secondTop.up = nil
-        bottom.down = Stack(stack!.number)
+        bottom.down = Stack(stack!.number, below: bottom)
         stack = secondTop
     }
 }
@@ -107,6 +128,7 @@ func describe(_ a: Stack?, _ b: Stack?) {
     let sizes = [a?.size ?? 0, b?.size ?? 0]
     let size = max(sizes[0], sizes[1])
     var stacks = [a, b]
+    print("")
     for i in (0 ..< size).reversed() {
         var number: [String] = [" ", " "]
         for j in 0 ..< 2 {
@@ -115,8 +137,8 @@ func describe(_ a: Stack?, _ b: Stack?) {
                 stacks[j] = stack.down
             }
         }
-        print(number[0] + "\t" + number[1])
+        print(number[0] + "\t\t" + number[1])
     }
-    print("_\t_")
-    print("a\tb\n")
+    print("_\t\t_")
+    print("a\t\tb\n")
 }

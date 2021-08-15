@@ -1,10 +1,11 @@
+private var count = 0
 private func printOperation(_ name: String, _ option: Option) {
     let suffix: String = {
         if option == .a { return "a" }
         if option == .b { return "b" }
         return String(Array(name)[0])
     }()
-    print(name + suffix)
+    print(name + suffix + "\t[\(count++)]")
     if debug { describe(a, b) }
 }
 
