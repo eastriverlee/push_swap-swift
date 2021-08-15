@@ -6,6 +6,7 @@ private func printOperation(_ name: String, _ option: Option) {
         return String(Array(name)[0])
     }()
     print(name + suffix + "\t[\(count++)]")
+    if count > limit { quit(true) }
     if debug { describe(a, b) }
 }
 

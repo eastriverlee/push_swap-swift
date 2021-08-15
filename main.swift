@@ -46,19 +46,20 @@ func get(_ number: Int, from option: Option) {
 }
 
 func get(two numbers: [Int], from option: Option) {
+    let this = option
+    let other: Option = (this == .a ? .b : .a)
     var stack: Stack { option == .a ? a! : b! }
+    var otherStack: Stack { option == .a ? b! : a! }
     let fromTop = numbers.areCloserFromTop(of: stack)
     var leftover: Int!
 
     func pushOne() {
-        leftover = a!.number == numbers[0] ? numbers[1] : numbers[0]
-        p(.b)
-        if !b!.isSorted(to: 1, by: .descending) {
-            s(.b)
-        }
+        leftover = stack.number == numbers[0] ? numbers[1] : numbers[0]
+        p(other)
+        if !otherStack.isSorted(to: 1, by: .descending) { s(other) }
     }
     while numbers[0] != stack.number && numbers[1] != stack.number {
-        fromTop ? r(.a) : rr(.a)
+        fromTop ? r(this) : rr(this)
     }
     pushOne()
     get(leftover, from: option)
@@ -74,33 +75,57 @@ extension Sequence where Iterator.Element == Int {
     }
 }
 
-func sort() {
-    let count = numbers.count
-    var i = 0
-    while i <= count-2 {
-        get(two: [sortedNumbers[i], sortedNumbers[i+1]], from: .a)
-        i += 2
+func roughSort() {
+    let aThird = numbers.count / 3
+    let pivot = [sortedNumbers[aThird], sortedNumbers[aThird * 2]]
+    var small: Bool { a!.number < pivot[0] }
+    var great: Bool { a!.number >= pivot[0] }
+    var greater: Bool { a!.number >= pivot[1] }
+    for _ in 0 ..< a!.count {
+        if small || (great && !greater) { p(.b) }
+        else { r(greater ? .both : .a) }
     }
-    if let a = a {
-        for _ in 0 ..< a.count {
-            get(sortedNumbers[i], from: .a)
-            p(.b)
-        }
-    }
-    if let b = b {
-        for _ in 0 ..< b.count { p(.a) }
+    for _ in 0 ..< a!.count {
+        p(.b)
     }
 }
 
+func sort(from target: Option) {
+    let this = target
+    let other: Option = (this == .a ? .b : .a)
+    let count = (this == .a ? a : b)?.count ?? 0
+    var first: Int  { this == .a ? sortedNumbers[i] : sortedNumbers[i] }
+    var second: Int { this == .a ? sortedNumbers[i+1] : sortedNumbers[i-1] }
+    var i = this == .a ? 0 : count-1
+    let chunk = 2
+    while i <= count-chunk {
+        get(two: [first, second], from: this)
+        i += this == .a ? chunk : -chunk
+    }
+    if let stack = (this == .a ? a : b) {
+        for _ in 0 ..< stack.count {
+            get(sortedNumbers[i], from: this)
+            p(other)
+            i += this == .a ? 1 : -1
+        }
+    }
+    if let stack = b, this == .a {
+        for _ in 0 ..< stack.count { p(this) }
+    }
+}
+
+let limit = 30000
 let debug = false
 let numbers = fill()
 let sortedNumbers = numbers.sorted()
+
 var a = buildStack(from: numbers)
 var b = buildStack(from: [])
 
 func main() {
     if let a = a, !a.isSorted(by: .ascending) {
-        sort()
+        roughSort()
+        sort(from: .b)
     }
     describe(a, b)
 }
