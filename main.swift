@@ -7,33 +7,29 @@ func quit() {
 }
 
 func fill() -> [Int] {
+    var numbers: [Int] = []
     var arguments = CommandLine.arguments
     arguments = Array(arguments[1 ..< arguments.count])
     if arguments.count == 1 {
         arguments = arguments[0].components(separatedBy: " ")
     }
-    return arguments.map{Int($0)!}
-}
-
-var numbers = fill()
-if Set(numbers).count != numbers.count {
-    print("Error: repeating numbers")
-    print("Generating new set......")
-    let desiredCount = numbers.count
-    numbers = Array(Set(numbers))
-    var count = numbers.count
-    while count < desiredCount {
-        let n = Int(Int32.random(in: Int32.min ... Int32.max))
-        if !numbers.contains(n) {
-            numbers.append(n)
-            count += 1
+    numbers = arguments.map{Int($0)!}
+    if Set(numbers).count != numbers.count {
+        print("Error: repeating numbers".red)
+        print("Generating new set......\n".green)
+        let desiredCount = numbers.count
+        numbers = Array(Set(numbers))
+        var count = numbers.count
+        while count < desiredCount {
+            let n = Int(Int32.random(in: Int32.min ... Int32.max))
+            if !numbers.contains(n) {
+                numbers.append(n)
+                count += 1
+            }
         }
     }
+    return numbers
 }
-var a = buildStack(from: numbers)
-var b = buildStack(from: [])
-
-let sortedNumbers = numbers.sorted()
 
 func get(_ number: Int, from option: Option) {
     var stack: Stack { option == .a ? a! : b! }
@@ -61,7 +57,16 @@ func sort() {
 }
 
 let debug = false
-if let a = a, !a.isSorted(by: .ascending) {
-    sort()
+let numbers = fill()
+let sortedNumbers = numbers.sorted()
+var a = buildStack(from: numbers)
+var b = buildStack(from: [])
+
+func main() {
+    if let a = a, !a.isSorted(by: .ascending) {
+        sort()
+    }
+    describe(a, b)
 }
-describe(a, b)
+
+main()

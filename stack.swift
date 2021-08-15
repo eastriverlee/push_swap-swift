@@ -128,7 +128,7 @@ func describe(_ a: Stack?, _ b: Stack?) {
     let sizes = [a?.size ?? 0, b?.size ?? 0]
     let size = max(sizes[0], sizes[1])
     var stacks = [a, b]
-    print("")
+    print(ANSI.cyan.rawValue)
     for i in (0 ..< size).reversed() {
         var number: [String] = [" ", " "]
         for j in 0 ..< 2 {
@@ -141,4 +141,5 @@ func describe(_ a: Stack?, _ b: Stack?) {
     }
     print("_\t\t_")
     print("a\t\tb\n")
+    print(ANSI.white.rawValue)
 }
