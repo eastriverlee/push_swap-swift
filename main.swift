@@ -14,12 +14,12 @@ func fill() -> [Int] {
         arguments = arguments[0].components(separatedBy: " ")
     }
     numbers = arguments.map{Int($0)!}
-    if Set(numbers).count != numbers.count {
+    if Set(numbers).count != count {
         print("Error: repeating numbers".red)
         print("Generating new set......\n".green)
-        let desiredCount = numbers.count
+        let desiredCount = count
         numbers = Array(Set(numbers))
-        var count = numbers.count
+        var count = count
         while count < desiredCount {
             let n = Int(Int32.random(in: Int32.min ... Int32.max))
             if !numbers.contains(n) {
@@ -31,39 +31,48 @@ func fill() -> [Int] {
     return numbers
 }
 
-func get(_ number: Int, from option: Option) {
-    var stack: Stack { option == .a ? a! : b! }
+func push(_ number: Int, from this: Option) {
+    var stack: Stack { this == .a ? a! : b! }
+    let other: Option = (this == .a ? .b : .a)
 
     if number.isCloserFromTop(of: stack) {
         while number != stack.number {
-            r(option)
+            print("finding \(number) ", terminator: "")
+            r(this)
         }
     } else {
         while number != stack.number {
-            rr(option)
+            print("finding \(number) ", terminator: "")
+            rr(this)
         }
     }
+    p(other)
 }
 
-func get(two numbers: [Int], from option: Option) {
-    let this = option
+func push(three numbers: [Int], from this: Option) {
     let other: Option = (this == .a ? .b : .a)
-    var stack: Stack { option == .a ? a! : b! }
-    var otherStack: Stack { option == .a ? b! : a! }
+    var stack: Stack { this == .a ? a! : b! }
+    var otherStack: Stack? { this == .a ? b : a }
     let fromTop = numbers.areCloserFromTop(of: stack)
     var leftover: Int!
 
     func pushOne() {
-        leftover = stack.number == numbers[0] ? numbers[1] : numbers[0]
         p(other)
-        if !otherStack.isSorted(to: 1, by: .descending) { s(other) }
+        if !(otherStack?.isSorted(to: 1, by: other == .b ? .descending : .ascending) ?? true) {
+            s(other)
+        }
     }
-    while numbers[0] != stack.number && numbers[1] != stack.number {
-        fromTop ? r(this) : rr(this)
+    func get(_ i: Int, or j: Int) {
+        while i != stack.number && j != stack.number {
+            fromTop ? r(this) : rr(this)
+        }
+        leftover = stack.number == i ? j : i
     }
+    get(numbers[0], or: numbers[1])
     pushOne()
-    get(leftover, from: option)
+    get(leftover, or: numbers[2])
     pushOne()
+    push(leftover, from: this)
 }
 
 extension Sequence where Iterator.Element == Int {
@@ -76,47 +85,73 @@ extension Sequence where Iterator.Element == Int {
 }
 
 func roughSort() {
-    let aThird = numbers.count / 3
-    let pivot = [sortedNumbers[aThird], sortedNumbers[aThird * 2]]
-    var small: Bool { a!.number < pivot[0] }
-    var great: Bool { a!.number >= pivot[0] }
-    var greater: Bool { a!.number >= pivot[1] }
-    for _ in 0 ..< a!.count {
-        if small || (great && !greater) { p(.b) }
-        else { r(greater ? .both : .a) }
+    let aThird = count / 3
+    let twoThird = aThird * 2
+    let pivot = [sortedNumbers[aThird-1], sortedNumbers[twoThird-1]]
+    var bCount = 0
+    func small(_ n: Int) -> Bool { n < pivot[0] }
+    func great(_ n: Int) -> Bool { n >= pivot[0] }
+    func greater(_ n: Int) -> Bool { n >= pivot[1] }
+
+    while bCount < twoThird {
+        if great(a!.number) {
+            p(.b); bCount += 1
+            if greater(b!.number) {
+                r(a != nil && small(a!.number) ? .both : .b)
+            }
+        } else { r(.a) }
     }
-    for _ in 0 ..< a!.count {
-        p(.b)
+    var i = count - 1
+    for _ in 0 ..< twoThird {
+        push(sortedNumbers[i--], from: .b)
     }
+    //for _ in 0 ..< count-bCount {
+    //    p(.b)
+    //}
 }
 
-func sort(from target: Option) {
-    let this = target
-    let other: Option = (this == .a ? .b : .a)
-    let count = (this == .a ? a : b)?.count ?? 0
-    var first: Int  { this == .a ? sortedNumbers[i] : sortedNumbers[i] }
-    var second: Int { this == .a ? sortedNumbers[i+1] : sortedNumbers[i-1] }
-    var i = this == .a ? 0 : count-1
-    let chunk = 2
-    while i <= count-chunk {
-        get(two: [first, second], from: this)
-        i += this == .a ? chunk : -chunk
-    }
-    if let stack = (this == .a ? a : b) {
-        for _ in 0 ..< stack.count {
-            get(sortedNumbers[i], from: this)
-            p(other)
-            i += this == .a ? 1 : -1
+//func sort(from this: Option) {
+//    let other: Option = this == .a ? .b : .a
+//    let count = (this == .a ? a : b)?.count ?? 0
+//    var first: Int  { this == .a ? sortedNumbers[i] : sortedNumbers[i] }
+//    var second: Int { this == .a ? sortedNumbers[i+1] : sortedNumbers[i-1] }
+//    var third: Int { this == .a ? sortedNumbers[i+2] : sortedNumbers[i-2] }
+//    var i = this == .a ? 0 : count - 1
+//    let chunk = 3
+//    while i <= count-chunk {
+//        push(three: [first, second, third], from: this)
+//        i += this == .a ? chunk : -chunk
+//    }
+//    if let stack = (this == .a ? a : b) {
+//        for _ in 0 ..< stack.count {
+//            push(sortedNumbers[i], from: this)
+//            i += this == .a ? 1 : -1
+//        }
+//    }
+//    if let stack = b, this == .a {
+//        for _ in 0 ..< stack.count { p(.a) }
+//    }
+//}
+
+func sort() {
+    while a != nil {
+        let temp = a!.number
+        r(.a)
+        while b != nil && b!.number > temp {
+            p(.a)
         }
+        rr(.a)
+        p(.b)
     }
-    if let stack = b, this == .a {
-        for _ in 0 ..< stack.count { p(this) }
+    while b != nil {
+        p(.a)
     }
 }
 
 let limit = 30000
 let debug = false
 let numbers = fill()
+let count = numbers.count
 let sortedNumbers = numbers.sorted()
 
 var a = buildStack(from: numbers)
@@ -124,8 +159,9 @@ var b = buildStack(from: [])
 
 func main() {
     if let a = a, !a.isSorted(by: .ascending) {
-        roughSort()
-        sort(from: .b)
+        //roughSort()
+        //sort(from: .a)
+        sort()
     }
     describe(a, b)
 }
