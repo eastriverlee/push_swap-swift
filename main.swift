@@ -133,18 +133,23 @@ func roughSort() {
 //    }
 //}
 
-func sort() {
-    while a != nil {
-        let temp = a!.number
-        r(.a)
-        while b != nil && b!.number > temp {
-            p(.a)
-        }
-        rr(.a)
-        p(.b)
-    }
-    while b != nil {
+func sortInsert() {
+    if a == nil || b!.number < a!.number {
         p(.a)
+        return
+    }
+    p(.b)
+    r(.b)
+    sortInsert()
+    rr(.b)
+    p(.a)
+}
+
+func sort() {
+    if a != nil {
+        p(.b)
+        sort()
+        sortInsert()
     }
 }
 
@@ -163,7 +168,7 @@ func main() {
         //sort(from: .a)
         sort()
     }
-    describe(a, b)
+    describe(a, b, color: (a?.isSorted(by: .ascending) ?? false ? .green : .red))
 }
 
 main()

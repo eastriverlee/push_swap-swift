@@ -123,11 +123,11 @@ func buildStack(from numbers: [Int]) -> Stack? {
     return stack
 }
 
-func describe(_ a: Stack?, _ b: Stack?) {
+func describe(_ a: Stack?, _ b: Stack?, color: ANSI = .cyan) {
     let counts = [a?.count ?? 0, b?.count ?? 0]
     let count = max(counts[0], counts[1])
     var stacks = [a, b]
-    print(ANSI.cyan.rawValue)
+    print(color.rawValue)
     for i in (0 ..< count).reversed() {
         var number: [String] = [" ", " "]
         for j in 0 ..< 2 {
