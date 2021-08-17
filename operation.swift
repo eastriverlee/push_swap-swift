@@ -1,4 +1,3 @@
-var counter = 0
 private func printOperation(_ name: String, _ option: Option) {
     let suffix: String = {
         if option == .a { return "a" }

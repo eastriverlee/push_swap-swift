@@ -15,13 +15,6 @@ extension Int {
     }
 }
 
-extension Array {
-    var middle: Element? {
-        guard count > 0 else { return nil }
-        return self[(count-1) / 2]
-    }
-}
-
 postfix func ++(x: inout Int) -> Int {
     x += 1
     return x - 1
