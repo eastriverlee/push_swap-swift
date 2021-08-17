@@ -29,7 +29,7 @@ class Stack {
     subscript(i: Int) -> Stack {
         var stack = self
         if i > 0 {
-            for _ in 0 ..< i {
+            for _ in 0..<i {
                 stack = stack.down!
             }
         }
@@ -56,7 +56,7 @@ class Stack {
 
     func find(_ n: Int) -> Int {
         var current: Stack? = self
-        for i in 0 ..< count {
+        for i in 0..<count {
             if current == nil { break }
             if n == current!.number { return i }
             current = current!.down
@@ -128,7 +128,7 @@ func describe(_ a: Stack?, _ b: Stack?, color: ANSI = .cyan) {
     let count = max(counts[0], counts[1])
     var stacks = [a, b]
     print(color.rawValue)
-    for i in (0 ..< count).reversed() {
+    for i in (0..<count).reversed() {
         var number: [String] = [" ", " "]
         for j in 0 ..< 2 {
             if let stack = stacks[j], counts[j] > i {

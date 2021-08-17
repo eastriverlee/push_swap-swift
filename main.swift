@@ -21,7 +21,7 @@ func fill() -> [Int] {
         numbers = Array(Set(numbers))
         var count = count
         while count < desiredCount {
-            let n = Int(Int32.random(in: Int32.min ... Int32.max))
+            let n = Int(Int32.random(in: Int32.min...Int32.max))
             if !numbers.contains(n) {
                 numbers.append(n)
                 count += 1
@@ -37,12 +37,10 @@ func push(_ number: Int, from this: Option) {
 
     if number.isCloserFromTop(of: stack) {
         while number != stack.number {
-            print("finding \(number) ", terminator: "")
             r(this)
         }
     } else {
         while number != stack.number {
-            print("finding \(number) ", terminator: "")
             rr(this)
         }
     }
@@ -84,72 +82,14 @@ extension Sequence where Iterator.Element == Int {
     }
 }
 
-func roughSort() {
-    let aThird = count / 3
-    let twoThird = aThird * 2
-    let pivot = [sortedNumbers[aThird-1], sortedNumbers[twoThird-1]]
-    var bCount = 0
-    func small(_ n: Int) -> Bool { n < pivot[0] }
-    func great(_ n: Int) -> Bool { n >= pivot[0] }
-    func greater(_ n: Int) -> Bool { n >= pivot[1] }
-
-    while bCount < twoThird {
-        if great(a!.number) {
-            p(.b); bCount += 1
-            if greater(b!.number) {
-                r(a != nil && small(a!.number) ? .both : .b)
-            }
-        } else { r(.a) }
+func sortThree(of this: Option) {
+    var stack: Stack { this == .a ? a! : b! }
+    let array = stack[0..<stack.count]
+    if stack.number == array.max()! {
+        r(this)
     }
-    var i = count - 1
-    for _ in 0 ..< twoThird {
-        push(sortedNumbers[i--], from: .b)
-    }
-    //for _ in 0 ..< count-bCount {
-    //    p(.b)
-    //}
-}
-
-//func sort(from this: Option) {
-//    let other: Option = this == .a ? .b : .a
-//    let count = (this == .a ? a : b)?.count ?? 0
-//    var first: Int  { this == .a ? sortedNumbers[i] : sortedNumbers[i] }
-//    var second: Int { this == .a ? sortedNumbers[i+1] : sortedNumbers[i-1] }
-//    var third: Int { this == .a ? sortedNumbers[i+2] : sortedNumbers[i-2] }
-//    var i = this == .a ? 0 : count - 1
-//    let chunk = 3
-//    while i <= count-chunk {
-//        push(three: [first, second, third], from: this)
-//        i += this == .a ? chunk : -chunk
-//    }
-//    if let stack = (this == .a ? a : b) {
-//        for _ in 0 ..< stack.count {
-//            push(sortedNumbers[i], from: this)
-//            i += this == .a ? 1 : -1
-//        }
-//    }
-//    if let stack = b, this == .a {
-//        for _ in 0 ..< stack.count { p(.a) }
-//    }
-//}
-
-func sortInsert() {
-    if a == nil || b!.number < a!.number {
-        p(.a)
-        return
-    }
-    p(.b)
-    r(.b)
-    sortInsert()
-    rr(.b)
-    p(.a)
-}
-
-func sort() {
-    if a != nil {
-        p(.b)
-        sort()
-        sortInsert()
+    if !stack.isSorted(to: 2, by: this == .a ? .ascending : .descending) {
+        s(this)
     }
 }
 
@@ -159,16 +99,36 @@ let numbers = fill()
 let count = numbers.count
 let sortedNumbers = numbers.sorted()
 
+func sort(only count: Int = count, from index: inout Int, end: Bool = false) {
+    let range = 0..<count
+    let smallest = sortedNumbers[index - (count-1)]
+    let biggest = sortedNumbers[index]
+    var bCount = 0
+
+    while bCount < count {
+        if smallest <= a!.number && a!.number <= biggest {
+            p(.b)
+            bCount += 1
+        } else { r(.a) }
+    }
+    for _ in range { push(sortedNumbers[index--], from: .b) }
+    if !end { for _ in range { r(.a) } }
+}
+
 var a = buildStack(from: numbers)
 var b = buildStack(from: [])
 
 func main() {
-    if let a = a, !a.isSorted(by: .ascending) {
-        //roughSort()
-        //sort(from: .a)
-        sort()
+    var index = count-1
+    let firstHalf = count/2
+    let secondHalf = count-firstHalf
+    guard let A = a else { quit(true); return }
+
+    if !A.isSorted(by: .ascending) {
+      sort(only: firstHalf, from: &index)
+      sort(only: secondHalf, from: &index, end: true)
     }
-    describe(a, b, color: (a?.isSorted(by: .ascending) ?? false ? .green : .red))
+    describe(a, b, color: (a?.isSorted(by: .ascending) ?? false) ? .green : .red)
 }
 
 main()
