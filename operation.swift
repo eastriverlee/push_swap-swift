@@ -18,24 +18,28 @@ enum Option {
 }
 
 func s(_ option: Option) {
+    guard let _ =  option == .a ? a?.down : b?.down else { return }
     if option == .a || option == .both { a?.swap() }
     if option == .b || option == .both { b?.swap() }
     printOperation("s", option);
 }
 
 func p(_ option: Option) {
+    guard let _ =  option == .a ? b : a else { return }
     if option == .a || option == .both { push(&b, on: &a) }
     if option == .b || option == .both { push(&a, on: &b) }
     printOperation("p", option);
 }
 
 func r(_ option: Option) {
+    guard let _ =  option == .a ? a?.down : b?.down else { return }
     if option == .a || option == .both { rotate(&a) }
     if option == .b || option == .both { rotate(&b) }
     printOperation("r", option);
 }
 
 func rr(_ option: Option) {
+    guard let _ =  option == .a ? a?.down : b?.down else { return }
     if option == .a || option == .both { rrotate(&a) }
     if option == .b || option == .both { rrotate(&b) }
     printOperation("rr", option);

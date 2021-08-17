@@ -15,12 +15,12 @@ func fill() -> [Int] {
         arguments = arguments[0].components(separatedBy: " ")
     }
     numbers = arguments.map{Int($0)!}
-    if Set(numbers).count != count {
+    let desiredCount = numbers.count
+    numbers = Array(Set(numbers))
+    if Set(numbers).count != desiredCount {
         print("Error: repeating numbers".red)
         print("Generating new set......\n".green)
-        let desiredCount = count
-        numbers = Array(Set(numbers))
-        var count = count
+        var count = numbers.count
         while count < desiredCount {
             let n = Int(Int32.random(in: Int32.min...Int32.max))
             if !numbers.contains(n) {
@@ -32,44 +32,31 @@ func fill() -> [Int] {
     return numbers
 }
 
-func push(_ number: Int, from this: Option) {
-    var stack: Stack { this == .a ? a! : b! }
-    let other: Option = (this == .a ? .b : .a)
+func push(_ number: Int, from here: Option) {
+    var stack: Stack { here == .a ? a! : b! }
+    let there: Option = (here == .a ? .b : .a)
 
     if number.isCloserFromTop(of: stack) {
         while number != stack.number {
-            r(this)
+            r(here)
         }
     } else {
         while number != stack.number {
-            rr(this)
+            rr(here)
         }
     }
-    p(other)
+    p(there)
 }
+func push(_ i: Int, and j: Int, from here: Option) {
+    var stack: Stack { here == .a ? a! : b! }
+    var other: Stack { here == .a ? b! : a! }
+    let there: Option = (here == .a ? .b : .a)
 
-func push(two numbers: [Int], from this: Option) {
-    let other: Option = (this == .a ? .b : .a)
-    var stack: Stack { this == .a ? a! : b! }
-    var otherStack: Stack? { this == .a ? b : a }
-    let fromTop = numbers.areCloserFromTop(of: stack)
-    var leftover: Int!
-
-    func pushOne() {
-        p(other)
-        if !(otherStack?.isSorted(to: 1, by: other == .b ? .descending : .ascending) ?? true) {
-            s(other)
-        }
-    }
-    func get(_ i: Int, or j: Int) {
-        while i != stack.number && j != stack.number {
-            fromTop ? r(this) : rr(this)
-        }
-        leftover = stack.number == i ? j : i
-    }
-    get(numbers[0], or: numbers[1])
-    pushOne()
-    push(leftover, from: this)
+    let distance = [stack.find(i), stack.find(j)].map { $0 > count/2 ? count-$0 : $0 }
+    let correctOrder = distance[0] > distance[1]
+    push(correctOrder ? i : j, from: here)
+    push(correctOrder ? j : i, from: here)
+    if !other.isSorted(to: 1, by: there == .a ? .ascending : .descending) { s(there) }
 }
 
 extension Sequence where Iterator.Element == Int {
@@ -81,35 +68,54 @@ extension Sequence where Iterator.Element == Int {
     }
 }
 
-func sortThree(of this: Option, by order: Order? = nil) {
-    var stack: Stack { this == .a ? a! : b! }
+func sortThree(of here: Option) {
+    var stack: Stack { here == .a ? a! : b! }
     let array = stack[0..<min(3, stack.count)]
-    let extreme = this == .a ? array.max()! : array.min()!
+    let extreme = here == .a ? array.max()! : array.min()!
     if let second = stack.down, second.number == extreme {
-        rr(this)
+        rr(here)
     }
     if stack.number == extreme { 
-        r(this)
+        r(here)
     }
-    if !stack.isSorted(to: 2, by: this == .a ? .ascending : .descending) {
-        s(this)
+    if !stack.isSorted(to: 2, by: here == .a ? .ascending : .descending) {
+        s(here)
     }
 }
 
+func sortFive(of here: Option) {
+    var stack: Stack { here == .a ? a! : b! }
+    let array = stack[0..<min(5, stack.count)]
+    let sortedFive = array.sorted()
+    let first = sortedFive[here == .a ? 0 : array.count-1]
+    let second = sortedFive[here == .a ? 1 : array.count-2]
+
+    if array.count > 3 { push(first, and: second, from: here) }
+    sortThree(of: here)
+    p(.a)
+    p(.a)
+}
+
 func sort(only count: Int = count, from index: inout Int, end: Bool = false) {
-    let smallest = sortedNumbers[index - (count-1)]
-    let biggest = sortedNumbers[index]
+    let small = sortedNumbers[index - (count-1)]
+    let big = sortedNumbers[index]
     var bCount = 0
 
     while bCount < count {
-        if smallest <= a!.number && a!.number <= biggest {
+        if small <= a!.number && a!.number <= big {
             p(.b)
             bCount += 1
         } else { r(.a) }
     }
-    while bCount-- > 0 { 
-        push(sortedNumbers[index--], from: .b)
+    var i = 0
+    while bCount > 5 { 
+        push(sortedNumbers[index], and: sortedNumbers[index-1], from: .b)
+        index -= 2
+        bCount -= 2
     }
+    index -= bCount
+    sortFive(of: .b)
+    while b != nil { p(.a) }
     if !end { for _ in 0..<count { r(.a) } }
 }
 
@@ -117,6 +123,7 @@ func sortDivide(by parts: Int) {
     var index = count-1
     let part = count/parts
     let leftover = part + count%parts
+
     for _ in 0..<parts-1 {
         sort(only: part, from: &index)
     }
@@ -124,20 +131,21 @@ func sortDivide(by parts: Int) {
 }
 
 func reset() {
+    a = nil
     b = nil
     a = buildStack(from: numbers)
     counter = 0
 }
 
-func findBestDivision() {
+func findBestDivision(from skip: Int = 0) -> Int {
     var performance: [Int] = []
-    let skip = 1
 
     muted = true
-    for i in 1...15 {
+    for i in 1...10 {
         if skip < i {
             reset()
             sortDivide(by: i)
+            print("instrunctions count: \(counter)".yellow)
             performance.append(counter)
         }
     }
@@ -148,33 +156,30 @@ func findBestDivision() {
     print("best division: \(best)")
     reset()
     muted = false
-    sortDivide(by: best)
+    return best
 }
 
 
 //MARK: - main
 
-let limit = 1000
+let limit = 40000
 let debug = false
 var muted = false
 let numbers = fill()
 let count = numbers.count
+
 let sortedNumbers = numbers.sorted()
 
 var a = buildStack(from: numbers)
 var b = buildStack(from: [])
 
 func main() {
-    //findBestDivision()
-    guard let _ = a else { exit(0) }
-
-    //describe(a, b)
     switch count {
-         case 0: break
          case 1...3: sortThree(of: .a)
-         case 4..<100: sortDivide(by: 2)
+         case 4...5: sortFive(of: .a)
+         case 6..<100: sortDivide(by: 2)
          case 100..<500: sortDivide(by: 4)
-         default: sortDivide(by: 8)
+         default: sortDivide(by: findBestDivision())
     }
     //describe(a, b)
     print((a?.isSorted(by: .ascending) ?? false) ? "OK".green : "KO".red)
