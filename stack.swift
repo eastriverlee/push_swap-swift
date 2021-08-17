@@ -133,6 +133,9 @@ func describe(_ a: Stack?, _ b: Stack?, color: ANSI = .cyan) {
         for j in 0 ..< 2 {
             if let stack = stacks[j], counts[j] > i {
                 number[j] = "\(stack.number)"
+                if j == 0 {
+                    number[j] = stack.down == nil || stack.number < stack.down!.number ? number[j].green : number[j].red
+                }
                 stacks[j] = stack.down
             }
         }

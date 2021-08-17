@@ -1,8 +1,9 @@
 import Darwin
 
-func quit(_ force: Bool = false) {
-    print("Error")
-    if force || debug { describe(a, b) }
+func quit(_ description: String = "") {
+    if !description.isEmpty || debug { describe(a, b) }
+    print("ERROR".red)
+    print(description.yellow)
     exit(0)
 }
 
@@ -47,7 +48,7 @@ func push(_ number: Int, from this: Option) {
     p(other)
 }
 
-func push(three numbers: [Int], from this: Option) {
+func push(two numbers: [Int], from this: Option) {
     let other: Option = (this == .a ? .b : .a)
     var stack: Stack { this == .a ? a! : b! }
     var otherStack: Stack? { this == .a ? b : a }
@@ -68,8 +69,6 @@ func push(three numbers: [Int], from this: Option) {
     }
     get(numbers[0], or: numbers[1])
     pushOne()
-    get(leftover, or: numbers[2])
-    pushOne()
     push(leftover, from: this)
 }
 
@@ -82,10 +81,14 @@ extension Sequence where Iterator.Element == Int {
     }
 }
 
-func sortThree(of this: Option) {
+func sortThree(of this: Option, by order: Order? = nil) {
     var stack: Stack { this == .a ? a! : b! }
-    let array = stack[0..<stack.count]
-    if stack.number == array.max()! {
+    let array = stack[0..<min(3, stack.count)]
+    let extreme = this == .a ? array.max()! : array.min()!
+    if let second = stack.down, second.number == extreme {
+        rr(this)
+    }
+    if stack.number == extreme { 
         r(this)
     }
     if !stack.isSorted(to: 2, by: this == .a ? .ascending : .descending) {
@@ -93,14 +96,7 @@ func sortThree(of this: Option) {
     }
 }
 
-let limit = 30000
-let debug = false
-let numbers = fill()
-let count = numbers.count
-let sortedNumbers = numbers.sorted()
-
 func sort(only count: Int = count, from index: inout Int, end: Bool = false) {
-    let range = 0..<count
     let smallest = sortedNumbers[index - (count-1)]
     let biggest = sortedNumbers[index]
     var bCount = 0
@@ -111,24 +107,78 @@ func sort(only count: Int = count, from index: inout Int, end: Bool = false) {
             bCount += 1
         } else { r(.a) }
     }
-    for _ in range { push(sortedNumbers[index--], from: .b) }
-    if !end { for _ in range { r(.a) } }
+    while bCount-- > 0 { 
+        push(sortedNumbers[index--], from: .b)
+    }
+    if !end { for _ in 0..<count { r(.a) } }
 }
+
+func sortDivide(by parts: Int) {
+    var index = count-1
+    let part = count/parts
+    let leftover = part + count%parts
+    for _ in 0..<parts-1 {
+        sort(only: part, from: &index)
+    }
+    sort(only: leftover, from: &index, end: true)
+}
+
+func reset() {
+    b = nil
+    a = buildStack(from: numbers)
+    counter = 0
+}
+
+func findBestDivision() {
+    var performance: [Int] = []
+    let skip = 1
+
+    muted = true
+    for i in 1...15 {
+        if skip < i {
+            reset()
+            sortDivide(by: i)
+            performance.append(counter)
+        }
+    }
+    let min = performance.min()!
+    let best = skip+performance.firstIndex{ $0 == min }!+1
+    print("performance: \(performance)")
+    print("best performance: \(min)")
+    print("best division: \(best)")
+    reset()
+    muted = false
+    sortDivide(by: best)
+}
+
+
+//MARK: - main
+
+let limit = 1000
+let debug = false
+var muted = false
+let numbers = fill()
+let count = numbers.count
+let sortedNumbers = numbers.sorted()
 
 var a = buildStack(from: numbers)
 var b = buildStack(from: [])
 
 func main() {
-    var index = count-1
-    let firstHalf = count/2
-    let secondHalf = count-firstHalf
-    guard let A = a else { quit(true); return }
+    //findBestDivision()
+    guard let _ = a else { exit(0) }
 
-    if !A.isSorted(by: .ascending) {
-      sort(only: firstHalf, from: &index)
-      sort(only: secondHalf, from: &index, end: true)
+    //describe(a, b)
+    switch count {
+         case 0: break
+         case 1...3: sortThree(of: .a)
+         case 4..<100: sortDivide(by: 2)
+         case 100..<500: sortDivide(by: 4)
+         default: sortDivide(by: 8)
     }
-    describe(a, b, color: (a?.isSorted(by: .ascending) ?? false) ? .green : .red)
+    //describe(a, b)
+    print((a?.isSorted(by: .ascending) ?? false) ? "OK".green : "KO".red)
+    print("instrunctions count: \(counter)".yellow)
 }
 
 main()

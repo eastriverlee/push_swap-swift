@@ -1,12 +1,13 @@
-private var counter = 0
+var counter = 0
 private func printOperation(_ name: String, _ option: Option) {
     let suffix: String = {
         if option == .a { return "a" }
         if option == .b { return "b" }
         return String(Array(name)[0])
     }()
-    print(name + suffix + "\t[\(counter++)]")
-    if counter > limit { quit(true) }
+    counter += 1
+    if !muted { print(name + suffix + "\t[\(counter)]") }
+    if counter > limit { quit("counter exceeded limit") }
     if debug { describe(a, b) }
 }
 
