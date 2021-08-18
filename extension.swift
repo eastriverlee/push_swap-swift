@@ -48,3 +48,9 @@ extension String {
     var white: String { ANSI.white.rawValue + self + ANSI.none.rawValue }
     var none: String { ANSI.none.rawValue + self + ANSI.none.rawValue }
 }
+
+func debugPrint(_ description: String) {
+    if debug {
+        print(description.yellow)
+    }
+}

@@ -64,6 +64,12 @@ class Stack {
         return -1
     }
 
+    func distance(to n: Int) -> Int {
+        let distance = find(n)
+        let count = self.count
+        return distance > count/2 ? count-distance : distance
+    }
+
     func isSorted(from start: Int = 0, to end_: Int = -1, by order: Order) -> Bool {
         let end = end_ == -1 ? count - 1 : end_
         var current: Stack? = self

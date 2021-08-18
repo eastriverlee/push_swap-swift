@@ -2,7 +2,7 @@ import Darwin
 import Foundation
 
 func quit(_ description: String = "") {
-    if !description.isEmpty || debug { describe(a, b) }
+    if !description.isEmpty || debug { describe(A, B) }
     print("ERROR".red)
     print(description.yellow)
     exit(0)
@@ -47,8 +47,8 @@ let numbers = fill()
 let count = numbers.count
 let sortedNumbers = numbers.sorted()
 
-var a = buildStack(from: numbers)
-var b = buildStack(from: [])
+var A = buildStack(from: numbers)
+var B = buildStack(from: [])
 
 func main() {
     switch count {
@@ -56,11 +56,10 @@ func main() {
          case 4...5: sortFive(of: .a)
          case 6..<100: sortDivide(by: 2)
          case 100..<300: sortDivide(by: 4)
-         case 300...500: sortDivide(by: 8)
-         default: sortDivide(by: findBestDivision())
+         default: sortDivide(by: 8)
     }
-    describe(a, b)
-    print((a?.isSorted(by: .ascending) ?? false) ? "OK".green : "KO".red)
+    describe(A, B)
+    print((A?.isSorted(by: .ascending) ?? false) ? "OK".green : "KO".red)
     print("instrunctions count: \(counter)".yellow)
 }
 
